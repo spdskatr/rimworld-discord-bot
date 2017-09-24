@@ -1,13 +1,22 @@
-const Discord = require('discord.js');
-const auth = require('./auth.json');
 const db = require('sqlite');
+const Discord = require('discord.js');
+
+const auth = require('./auth.json');
 const Manager = require('./src/Manager');
 const Commands = require('./src/Commands');
 const TicTacToe = require('./src/TicTacToe');
+const HttpServer = require('./src/Server');
+const Comics = require('./src/Comics');
+const Gifs = require('./src/Gifs');
 
 // Initialize
-const client = new Discord.Client();
 const manager = new Manager(db);
+
+// Start server
+HttpServer.start();
+
+// Bot Client
+const client = new Discord.Client();
 
 client.on('ready', (evt) => {
   console.info('Connected');
@@ -62,6 +71,12 @@ client.on("message", /** @type {Message} */ (message) => {
 
       break;
     }
+    case 'comic': {
+      Comics.comic(message, args); break;
+    }
+    case 'gif': {
+      Gifs.gif(message, args); break;
+    }
   }
 });
 
@@ -78,6 +93,8 @@ function init() {
     .then(() => db.run("CREATE TABLE IF NOT EXISTS colonists (userId TEXT, username TEXT, data TEXT)"))
     .catch(err => console.error(err.stack))
     .then(() => db.run("CREATE TABLE IF NOT EXISTS settlements (name TEXT, data TEXT)"))
+    .catch(err => console.error(err.stack))
+    .then(() => db.run("CREATE TABLE IF NOT EXISTS comics (name TEXT, data TEXT)"))
     .catch(err => console.error(err.stack))
 }
 
